@@ -4,31 +4,51 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ParseXmlString from "../functions/parseXmlString";
 import TextItem from "../components/textItem.component";
 
+export type TickerItem = {
+  title: string;
+  text: string;
+  icon: string;
+};
+const dummy = [
+  {
+    title: "JUPILER PRO LEAGUE",
+    text: "OH Leuven - Charlerio eindigt zoals het begon, 0-0",
+    icon: "Soccer",
+  },
+  {
+    title: "PREMIER LEAGUE",
+    text: "West Ham verliest nu ook met 2-0 van Nottingham Forest",
+    icon: "Soccer",
+  },
+  {
+    title: "RONDE VAN ZWITSERLAND",
+    text: "Nairo Quintana breekt middenhandsbeentje in 2de rit van Zwitserland",
+    icon: "Cycling",
+  },
+];
 export const Ticker = () => {
-  const [text, setText] = useState(
-    "OH Leuven - Charlerio eindigt zoals het begon, 0-0"
-  );
-  const [title, setTitle] = useState("JUPILER PRO LEAGUE");
-
+  const [content, setContent] = useState<TickerItem[]>(dummy);
   const bgRef = useRef<HTMLDivElement>(null);
-  const text1Ref = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [totalSteps, setTotalSteps] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const Update = useCallback((data: string) => {
     const json = JSON.parse(data);
-
-    if (json.TickerTitle !== undefined) {
-      setTitle(json.TickerTitle);
+    setTotalSteps(json.TickerContent.length);
+    if (json.TickerContent !== undefined) {
+      setTotalSteps(json.TickerContent.length);
+      setContent(json.TickerContent);
     } else {
-      setTitle("TEST");
+      setTotalSteps(dummy.length);
+      setContent(dummy);
     }
-    if (json.TickerText !== undefined) {
-      setText(json.TickerText);
-    } else {
-      setText("TEST");
-    }
+    setCurrentStep(0);
   }, []);
 
   const Play = useCallback(() => {
+    setTotalSteps(content.length);
+    setCurrentStep(0);
     anime({
       targets: [bgRef.current],
       translateY: [-100],
@@ -39,14 +59,30 @@ export const Ticker = () => {
   }, []);
 
   const Next = useCallback(() => {
-    anime({
-      targets: [bgRef.current],
-      translateY: [0],
-      easing: "easeOutExpo",
-      duration: 600,
-      loop: false,
+    setCurrentStep((prevStep) => {
+      const nextStep = prevStep + 1;
+
+      if (nextStep >= totalSteps) {
+        anime({
+          targets: [bgRef.current],
+          translateY: [0],
+          easing: "easeOutExpo",
+          duration: 600,
+          loop: false,
+        });
+        return 0;
+      } else {
+        anime({
+          targets: [textRef.current],
+          translateY: [-85 * nextStep],
+          easing: "easeOutExpo",
+          duration: 600,
+          loop: false,
+        });
+        return nextStep;
+      }
     });
-  }, []);
+  }, [totalSteps]);
 
   useEffect(() => {
     window.update = (args: string) => {
@@ -63,32 +99,62 @@ export const Ticker = () => {
     };
   }, [Update, Next, Play]);
 
+  useEffect(() => {
+    console.log("Current Step:", currentStep, "Total Steps:", totalSteps);
+  }, [currentStep, totalSteps]);
+
   return (
     <>
       <div
         ref={bgRef}
         style={{
-          // bottom: "-100px",
-          bottom: 100,
+          bottom: "-100px",
           width: "1920px",
           height: "91px",
         }}
-        className="origin-bottom absolute overflow-hidden"
+        className="origin-bottom absolute "
       >
         <div
           style={{
             width: "1920px",
-            height: "91px",
+            height: "6px",
+          }}
+          className="bg-[#ffff00]   "
+        >
+          {" "}
+        </div>
+        <div
+          style={{
+            width: "1920px",
+            height: "85px",
             fontSize: "29px",
             letterSpacing: 0.5,
           }}
-          className="bg-[#15191f] border-t-[6px] border-[#ffff00] bottom-0 "
+          className="bg-[#15191f] bottom-0 overflow-hidden"
         >
-          <div
-            ref={text1Ref}
-            className="w-full h-full flex items-center justify-center text-white translate-x-7"
-          >
-            <TextItem title={title} text={text} icon={"B"}></TextItem>
+          <div ref={textRef}>
+            {content.map((item, id) => {
+              return (
+                <div
+                  key={id}
+                  className="w-full h-full flex items-center justify-center text-white translate-x-[30px] -translate-y-3"
+                >
+                  {" "}
+                  <div
+                    style={{
+                      width: "5px",
+                      height: "100px",
+                    }}
+                    className="bg-[#ffff00]  absolute left-1/2 "
+                  ></div>
+                  <TextItem
+                    title={item.title}
+                    text={item.text}
+                    icon={item.icon}
+                  ></TextItem>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
