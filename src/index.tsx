@@ -17,7 +17,7 @@ ReactDOM.render(
   >
     <div
       style={{
-        width: "5px",
+        width: "1px",
         height: "1080px",
       }}
       className="bg-[#e92ed9]  absolute left-1/2 "

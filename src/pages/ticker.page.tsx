@@ -25,6 +25,31 @@ const dummy = [
     text: "Nairo Quintana breekt middenhandsbeentje in 2de rit van Zwitserland",
     icon: "Cycling",
   },
+  {
+    title: "TITEL3",
+    text: "Lorem ipsum dolor sit amet",
+    icon: "Soccer",
+  },
+  {
+    title: "TITEL4",
+    text: "Lorem ipsum dolor sit amet",
+    icon: "Soccer",
+  },
+  {
+    title: "TITEL5",
+    text: "Lorem ipsum dolor sit amet",
+    icon: "Soccer",
+  },
+  {
+    title: "TITEL6",
+    text: "Lorem ipsum dolor sit amet",
+    icon: "Soccer",
+  },
+  {
+    title: "TITEL7",
+    text: "Lorem ipsum dolor sit amet",
+    icon: "Soccer",
+  },
 ];
 export const Ticker = () => {
   const [content, setContent] = useState<TickerItem[]>(dummy);
@@ -120,9 +145,7 @@ export const Ticker = () => {
             height: "6px",
           }}
           className="bg-[#ffff00]   "
-        >
-          {" "}
-        </div>
+        ></div>
         <div
           style={{
             width: "1920px",
@@ -137,15 +160,14 @@ export const Ticker = () => {
               return (
                 <div
                   key={id}
-                  className="w-full h-full flex items-center justify-center text-white translate-x-[30px] -translate-y-3"
+                  className="w-full h-full flex items-center justify-center text-white  -translate-y-3"
                 >
-                  {" "}
                   <div
                     style={{
-                      width: "5px",
+                      width: "1px",
                       height: "100px",
                     }}
-                    className="bg-[#ffff00]  absolute left-1/2 "
+                    className="bg-[#ea00ff]  absolute left-1/2 "
                   ></div>
                   <TextItem
                     title={item.title}
