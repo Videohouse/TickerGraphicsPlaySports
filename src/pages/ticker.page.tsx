@@ -26,57 +26,68 @@ const dummy = [
     icon: "Cycling",
   },
   {
-    title: "TITEL3",
-    text: "Lorem ipsum dolor sit amet",
-    icon: "Soccer",
-  },
-  {
     title: "TITEL4",
-    text: "Lorem ipsum dolor sit amet",
-    icon: "Soccer",
-  },
-  {
-    title: "TITEL5",
-    text: "Lorem ipsum dolor sit amet",
-    icon: "Soccer",
-  },
-  {
-    title: "TITEL6",
-    text: "Lorem ipsum dolor sit amet",
-    icon: "Soccer",
-  },
-  {
-    title: "TITEL7",
-    text: "Lorem ipsum dolor sit amet",
+    text: "Text text texttexttexttexttexttext",
     icon: "Soccer",
   },
 ];
 export const Ticker = () => {
-  const [content, setContent] = useState<TickerItem[]>(dummy);
-  const bgRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [totalSteps, setTotalSteps] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentItem, setCurrentItem] = useState<TickerItem>(dummy[0]);
+  const [newItem, setNewItem] = useState<TickerItem | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [updated, setUpdated] = useState(false);
 
-  const Update = useCallback((data: string) => {
-    const json = JSON.parse(data);
-    setTotalSteps(json.TickerContent.length);
-    if (json.TickerContent !== undefined) {
-      setTotalSteps(json.TickerContent.length);
-      setContent(json.TickerContent);
-    } else {
-      setTotalSteps(dummy.length);
-      setContent(dummy);
-    }
-    setCurrentStep(0);
-  }, []);
+  const textRef = useRef<HTMLDivElement>(null);
+  const newTextRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+
+  const Update = useCallback(
+    (data: string) => {
+      console.log(updated);
+      //TODO: add json data code here
+      //TODO: remove dummy
+      if (!updated) {
+        setCurrentItem(dummy[0]);
+        setUpdated(true);
+      } else {
+        const nextIndex = (currentIndex + 1) % dummy.length;
+        setNewItem(dummy[nextIndex]);
+        anime({
+          targets: [textRef.current],
+          translateY: [-100],
+          easing: "easeOutExpo",
+          duration: 600,
+          complete: () => {
+            setCurrentItem(dummy[nextIndex]);
+            setCurrentIndex(nextIndex);
+            setNewItem(null);
+
+            if (textRef.current) {
+              textRef.current.style.transform = "translateY(0)";
+            }
+          },
+        });
+
+        anime({
+          targets: [newTextRef.current],
+          translateY: [-85],
+          easing: "easeOutExpo",
+          duration: 600,
+          complete: () => {
+            if (newTextRef.current) {
+              newTextRef.current.style.transform = "translateY(0)";
+            }
+          },
+        });
+      }
+    },
+    [currentIndex, updated]
+  );
 
   const Play = useCallback(() => {
-    setTotalSteps(content.length);
-    setCurrentStep(0);
     anime({
       targets: [bgRef.current],
-      translateY: [-100],
+      translateY: [-90],
       easing: "easeOutExpo",
       duration: 600,
       loop: false,
@@ -84,30 +95,15 @@ export const Ticker = () => {
   }, []);
 
   const Next = useCallback(() => {
-    setCurrentStep((prevStep) => {
-      const nextStep = prevStep + 1;
-
-      if (nextStep >= totalSteps) {
-        anime({
-          targets: [bgRef.current],
-          translateY: [0],
-          easing: "easeOutExpo",
-          duration: 600,
-          loop: false,
-        });
-        return 0;
-      } else {
-        anime({
-          targets: [textRef.current],
-          translateY: [-85 * nextStep],
-          easing: "easeOutExpo",
-          duration: 600,
-          loop: false,
-        });
-        return nextStep;
-      }
+    anime({
+      targets: [bgRef.current],
+      translateY: [0],
+      easing: "easeOutExpo",
+      duration: 600,
+      loop: false,
     });
-  }, [totalSteps]);
+    setUpdated(false);
+  }, []);
 
   useEffect(() => {
     window.update = (args: string) => {
@@ -123,10 +119,6 @@ export const Ticker = () => {
       Next();
     };
   }, [Update, Next, Play]);
-
-  useEffect(() => {
-    console.log("Current Step:", currentStep, "Total Steps:", totalSteps);
-  }, [currentStep, totalSteps]);
 
   return (
     <>
@@ -155,28 +147,33 @@ export const Ticker = () => {
           }}
           className="bg-[#15191f] bottom-0 overflow-hidden"
         >
+          {/*CURRENT*/}
           <div ref={textRef}>
-            {content.map((item, id) => {
-              return (
-                <div
-                  key={id}
-                  className="w-full h-full flex items-center justify-center text-white  -translate-y-3"
-                >
-                  <div
-                    style={{
-                      width: "1px",
-                      height: "100px",
-                    }}
-                    className="bg-[#ea00ff]  absolute left-1/2 "
-                  ></div>
-                  <TextItem
-                    title={item.title}
-                    text={item.text}
-                    icon={item.icon}
-                  ></TextItem>
-                </div>
-              );
-            })}
+            <div
+              key={0}
+              className="w-full h-full flex items-center justify-center text-white -translate-y-3"
+            >
+              <TextItem
+                title={currentItem.title}
+                text={currentItem.text}
+                icon={currentItem.icon}
+              ></TextItem>
+            </div>
+          </div>
+
+          {/*NEW*/}
+
+          <div ref={newTextRef}>
+            <div
+              key={1}
+              className="w-full h-full flex items-center justify-center text-white -translate-y-3"
+            >
+              <TextItem
+                title={newItem?.title}
+                text={newItem?.text}
+                icon={newItem?.icon}
+              ></TextItem>
+            </div>
           </div>
         </div>
       </div>

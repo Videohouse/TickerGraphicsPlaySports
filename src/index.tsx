@@ -7,21 +7,14 @@ const container = document.getElementById("root");
 
 ReactDOM.render(
   <div
-    className="relative overflow-hidden"
+    className="relative overflow-hidden bg-slate-200"
     style={{
-      backgroundImage: 'url("/src/assets/vb2.png")',
+      //backgroundImage: 'url("/src/assets/vb2.png")',
       backgroundSize: "cover",
       width: "1920px",
       height: "1080px",
     }}
   >
-    <div
-      style={{
-        width: "1px",
-        height: "1080px",
-      }}
-      className="bg-[#e92ed9]  absolute left-1/2 "
-    ></div>
     <Ticker />
   </div>,
   container
